@@ -1,0 +1,111 @@
+
+res <- res[order(res$log2FoldChange),]
+head(res)
+res <- res[order(res$padj),]
+head(res)
+par(mfrow=c(2,3))
+#this line did not work - not sure of value for gene
+plotCounts(dds, gene=“name”, intgroup=“V_per_host”)
+dev.off()
+plotMA(res)
+pdf("/Users/Trist/OneDrive/Desktop/Data Analysis/res.pdf", height = 7, width=13)
+plotMA(res)
+dev.off()
+vsdata <- vst(dds, blind=FALSE)
+g = plotPCA(vsdata, intgroup="V_per_host")
+g + geom_text_repel(aes(label=name), color = "black")
+dds_matrix = DESeq2::rlog(dds, fitType="local")
+expmatrix = SummarizedExperiment::assay(dds_matrix)
+sampleDists = dist(t(expmatrix))
+sampleDistMatrix = as.matrix(sampleDists)
+rownames(sampleDistMatrix) = paste(dds_matrix$Age_mo)
+colnames(sampleDistMatrix) = NULL
+colors = grDevices::colorRampPalette( rev(RColorBrewer::brewer.pal(3, "Spectral")) )(255)
+pheatmap::pheatmap(sampleDistMatrix,
+ clustering_distance_rows=sampleDists,
+ clustering_distance_cols=sampleDists,
+ col=colors)
+#Low vs Medium
+sub_meta2<-subset(metadata, V_per_host=="L" | V_per_host=="M")
+low_med=row.names(sub_meta2)
+data3<-data[low_med]
+dds<-DESeqDataSetFromMatrix(countData=data3, colData=sub_meta2, design=~V_per_host)
+dds <- DESeq(dds)
+res = results(dds)
+sum(res$padj < 0.05, na.rm=TRUE)
+keep <- rowSums(counts(dds)) >=10
+dds <- dds[keep,]
+dds$V_per_host<-factor(dds$V_per_host,levels = c("L","M"))
+dds$V_per_host<-relevel(dds$V_per_host,ref="L")
+write.csv(res, "res2.csv")
+res3<-read.csv("res2.csv")
+df3 = left_join(res3,info,by=c("X"="gene"))
+df3
+res <- res[order(res3$log2FoldChange),]
+head(res)
+res <- res[order(res$padj),]
+head(res)
+par(mfrow=c(2,3))
+#this line did not work - not sure of value for gene
+plotCounts(dds, gene=“LOC101857842”, intgroup=“V_per_host”)
+dev.off()
+plotMA(res)
+pdf("/Users/Trist/OneDrive/Desktop/Data Analysis/res2.pdf", height = 7, width=13)
+plotMA(res)
+dev.off()
+vsdata <- vst(dds, blind=FALSE)
+g = plotPCA(vsdata, intgroup="V_per_host")
+g + geom_text_repel(aes(label=name), color = "black")
+dds_matrix = DESeq2::rlog(dds, fitType="local")
+expmatrix = SummarizedExperiment::assay(dds_matrix)
+sampleDists = dist(t(expmatrix))
+sampleDistMatrix = as.matrix(sampleDists)
+rownames(sampleDistMatrix) = paste(dds_matrix$Age_mo)
+colnames(sampleDistMatrix) = NULL
+colors = grDevices::colorRampPalette( rev(RColorBrewer::brewer.pal(3, "Spectral")) )(255)
+pheatmap::pheatmap(sampleDistMatrix,
+ clustering_distance_rows=sampleDists,
+ clustering_distance_cols=sampleDists,
+ col=colors)
+#Medium vs High
+sub_meta3<-subset(metadata, V_per_host=="M" | V_per_host=="H")
+high_med=row.names(sub_meta3)
+data4<-data[high_med]
+dds<-DESeqDataSetFromMatrix(countData=data4, colData=sub_meta3, design=~V_per_host)
+dds <- DESeq(dds)
+res = results(dds)
+sum(res$padj < 0.05, na.rm=TRUE)
+keep <- rowSums(counts(dds)) >=10
+dds <- dds[keep,]
+dds$V_per_host<-factor(dds$V_per_host,levels = c("H","M"))
+dds$V_per_host<-relevel(dds$V_per_host,ref="M")
+write.csv(res, "res3.csv")
+res4<-read.csv("res3.csv")
+df4 = left_join(res4,info,by=c("X"="gene"))
+df4
+res <- res[order(res4$log2FoldChange),]
+head(res)
+res <- res[order(res4$padj),]
+head(res)
+par(mfrow=c(2,3))
+#this line did not work - not sure of value for gene
+plotCounts(dds, gene=“LOC101857842”, intgroup=“V_per_host”)
+dev.off()
+plotMA(res)
+pdf("/Users/Trist/OneDrive/Desktop/Data Analysis/res2.pdf", height = 7, width=13)
+plotMA(res)
+dev.off()
+vsdata <- vst(dds, blind=FALSE)
+g = plotPCA(vsdata, intgroup="V_per_host")
+g + geom_text_repel(aes(label=name), color = "black")
+dds_matrix = DESeq2::rlog(dds, fitType="local")
+expmatrix = SummarizedExperiment::assay(dds_matrix)
+sampleDists = dist(t(expmatrix))
+sampleDistMatrix = as.matrix(sampleDists)
+rownames(sampleDistMatrix) = paste(dds_matrix$Age_mo)
+colnames(sampleDistMatrix) = NULL
+colors = grDevices::colorRampPalette( rev(RColorBrewer::brewer.pal(3, "Spectral")) )(255)
+pheatmap::pheatmap(sampleDistMatrix,
+ clustering_distance_rows=sampleDists,
+ clustering_distance_cols=sampleDists,
+ col=colors)
